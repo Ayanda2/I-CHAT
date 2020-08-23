@@ -5,6 +5,7 @@ import { db, auth } from "./firebase";
 import Modal from "@material-ui/core/Modal";
 import { makeStyles } from "@material-ui/core/styles";
 import { Button, Input } from "@material-ui/core";
+import ImageUpload from "./ImageUpload";
 
 function getModalStyle() {
   const top = 50;
@@ -33,6 +34,7 @@ function App() {
   const [modalStyle] = useState(getModalStyle);
   const [posts, setPosts] = useState([]);
   const [open, setOpen] = useState([false]);
+  const [opensignin, setOpenSignIn] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,14 +43,25 @@ function App() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
+        // user has logged in
         console.log(authUser);
         setUser(authUser);
+        // if (authUser.displayName) {
+        //   // if user already exists dont update
+        // } else {
+        //   // when we just created a user
+        //   return authUser.updateProfile({
+        //     displayName: username,
+        //   });
+        // }
       } else {
+        // user has logged out
         setUser(null);
       }
     });
 
     return () => {
+      // perform cleanup actions before firing again so we dont duplacate
       unsubscribe();
     };
   }, [user, username]);
@@ -70,20 +83,36 @@ function App() {
       .createUserWithEmailAndPassword(email, password)
       .then((authUser) => {
         return authUser.user.updateProfile({
-          display: username,
+          displayName: username,
         });
       })
-      .catch((erro) => alert(erro.message));
+      .catch((error) => alert(error.message));
+    setOpen(false);
+  };
+  const signIn = (event) => {
+    event.preventDefault();
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .catch((error) => alert(error.message));
+
+    setOpenSignIn(false);
   };
 
   return (
     <div className="app">
+      {user?.displayName ? (
+        <ImageUpload username={user.displayName} />
+      ) : (
+        <h3>Sorry you need to Log to upload</h3>
+      )}
+
       <Modal open={open} onClose={() => setOpen(false)}>
         <div style={modalStyle} className={classes.paper}>
           <form className="app_signup">
             <center>
               <img className="app_headerImage" src="chat.png" alt="" />
             </center>
+
             <Input
               placeholder="username"
               type="text"
@@ -103,14 +132,50 @@ function App() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <Button onClick={signUp}>Sign Up</Button>
+            <Button type="submit" onClick={signUp}>
+              Sign Up
+            </Button>
           </form>
         </div>
       </Modal>
+      <Modal open={opensignin} onClose={() => setOpenSignIn(false)}>
+        <div style={modalStyle} className={classes.paper}>
+          <form className="app_signup">
+            <center>
+              <img className="app_headerImage" src="chat.png" alt="" />
+            </center>
+
+            <Input
+              placeholder="email"
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              placeholder="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <Button type="submit" onClick={signIn}>
+              Sign In
+            </Button>
+          </form>
+        </div>
+      </Modal>
+
       <div className="app_header">
         <img src="chat.png" alt="" className="app_headerImage" />
       </div>
-      <Button onClick={() => setOpen(true)}>Sign Up</Button>
+      {user ? (
+        <button onClick={() => auth.signOut()}>Log out</button>
+      ) : (
+        <div className="app_loginContainer">
+          <Button onClick={() => setOpenSignIn(true)}>Sign in</Button>
+          <Button onClick={() => setOpen(true)}>Sign Up</Button>
+        </div>
+      )}
 
       {posts.map(({ id, post }) => (
         <Post
