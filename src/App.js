@@ -67,14 +67,16 @@ function App() {
   }, [user, username]);
 
   useEffect(() => {
-    db.collection("posts").onSnapshot((snapshot) => {
-      setPosts(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          post: doc.data(),
-        }))
-      );
-    });
+    db.collection("posts")
+      // .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setPosts(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            post: doc.data(),
+          }))
+        );
+      });
   }, []);
 
   const signUp = (event) => {
@@ -100,12 +102,6 @@ function App() {
 
   return (
     <div className="app">
-      {user?.displayName ? (
-        <ImageUpload username={user.displayName} />
-      ) : (
-        <h3>Sorry you need to Log to upload</h3>
-      )}
-
       <Modal open={open} onClose={() => setOpen(false)}>
         <div style={modalStyle} className={classes.paper}>
           <form className="app_signup">
@@ -167,15 +163,15 @@ function App() {
 
       <div className="app_header">
         <img src="chat.png" alt="" className="app_headerImage" />
+        {user ? (
+          <button onClick={() => auth.signOut()}>Log out</button>
+        ) : (
+          <div className="app_loginContainer">
+            <Button onClick={() => setOpenSignIn(true)}>Sign in</Button>
+            <Button onClick={() => setOpen(true)}>Sign Up</Button>
+          </div>
+        )}
       </div>
-      {user ? (
-        <button onClick={() => auth.signOut()}>Log out</button>
-      ) : (
-        <div className="app_loginContainer">
-          <Button onClick={() => setOpenSignIn(true)}>Sign in</Button>
-          <Button onClick={() => setOpen(true)}>Sign Up</Button>
-        </div>
-      )}
 
       {posts.map(({ id, post }) => (
         <Post
@@ -185,6 +181,12 @@ function App() {
           imageUrl={post.imageUrl}
         />
       ))}
+      <ImageUpload username={user?.displayName} />
+      {/* {user?.displayName ? (
+        
+      ) : (
+        <h3>Sorry you need to Log to upload</h3>
+      )} */}
     </div>
   );
 }

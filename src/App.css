@@ -10,6 +10,8 @@
   border-bottom: 1px solid lightgray;
   object-fit: contain;
   padding: 20px;
+  display: flex;
+  justify-content: space-between;
 }
 .app_headerImage {
   margin-top: -25px;
