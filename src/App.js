@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Post from "./Post";
-import { storage, db, auth } from "./firebase";
+import { db, auth } from "./firebase";
 import Modal from "@material-ui/core/Modal";
 import { makeStyles } from "@material-ui/core/styles";
 import { Button, Input } from "@material-ui/core";
@@ -188,7 +188,7 @@ function App() {
         </div>
         <div className="post_right">
           <InstagramEmbed
-            url="https://www.instagram.com/p/B33hmT6A3w5/"
+            url="https://www.instagram.com/p/CCGBUUgnqSY/"
             // url="https://instagr.am/p/Zw9o4/"
             maxWidth={320}
             hideCaption={false}
@@ -202,10 +202,10 @@ function App() {
           />
         </div>
       </div>
-
       <ImageUpload username={user?.displayName} />
+
       {/* {user?.displayName ? (
-        
+        <ImageUpload username={user?.displayName} />
       ) : (
         <h3>Sorry you need to Log to upload</h3>
       )} */}
